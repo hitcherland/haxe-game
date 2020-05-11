@@ -39,7 +39,10 @@
 		},
 		{
 			"type": "shell",
-			"command": "js\\build_scripts\\prepare_js_dist.cmd",
+			"command": "bash js/build_scripts/prepare_js_dist.sh",
+			"windows": {
+				"command": "js\\build_scripts\\prepare_js_dist.cmd"
+			},
 			"dependsOn": ["haxe: js.hxml"],
 			"group": "build",
 			"label": "haxe: javascript-post"

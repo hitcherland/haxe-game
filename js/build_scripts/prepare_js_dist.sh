@@ -1,0 +1,1 @@
+cp -r js/static/* build/js;
