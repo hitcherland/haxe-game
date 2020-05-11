@@ -20,6 +20,14 @@
             "url": "file://${workspaceFolder}/build/js/index.html",
             "webRoot": "${workspaceFolder}/build/js/",
             "preLaunchTask": "haxe: javascript-post"
-		}
+        },
+        {
+			"name": "Create Wang Tileset",
+			"request": "launch",
+			"type": "hl",
+			"hxml": "wang.hxml",
+			"cwd": "${workspaceRoot}",
+			"preLaunchTask": "haxe: wang.hxml"
+        },
     ]
 }

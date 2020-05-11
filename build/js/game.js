@@ -303,52 +303,94 @@ Main.main = function() {
 };
 Main.__super__ = hxd_App;
 Main.prototype = $extend(hxd_App.prototype,{
-	init: function() {
-		var _gthis = this;
-		var width = Math.floor(this.s2d.width * 0.2);
-		var height = Math.floor(this.s2d.height * 0.2);
-		if(width > height) {
-			width = height;
-		} else {
-			height = width;
-		}
-		var t1 = h2d_Tile.fromColor(16711680,width,height);
-		var t2 = h2d_Tile.fromColor(65280,width,height);
-		var t3 = h2d_Tile.fromColor(255,width,height);
-		var t = t1;
-		t.dx = -t.width / 2;
-		t.dy = -t.height / 2;
-		var t4 = t2;
-		t4.dx = -t4.width / 2;
-		t4.dy = -t4.height / 2;
-		var t5 = t3;
-		t5.dx = -t5.width / 2;
-		t5.dy = -t5.height / 2;
-		this.anim = new h2d_Anim([t1,t2,t3],null,this.s2d);
-		this.anim.speed = 1;
-		this.anim.onAnimEnd = function() {
-			haxe_Log.trace("animation ended",{ fileName : "Main.hx", lineNumber : 25, className : "Main", methodName : "init"});
-		};
+	rescale: function() {
+		var stage = hxd_Window.getInstance();
+		var size = this.getSize(stage.get_width(),stage.get_height(),0.2);
+		var tile = this.anim.getFrame();
+		var actualSize = this.getSize(tile.width | 0,tile.height | 0,1);
+		var scale = size / actualSize;
 		var _this = this.anim;
 		_this.posChanged = true;
-		_this.x = this.s2d.width * 0.5;
+		_this.scaleX = scale;
+		_this.posChanged = true;
+		_this.scaleY = scale;
+		var _this1 = this.anim;
+		var v = stage.get_width() / 2;
+		_this1.posChanged = true;
+		_this1.x = v;
+		var _this2 = this.anim;
+		var v1 = stage.get_height() / 2;
+		_this2.posChanged = true;
+		_this2.y = v1;
+		var _this3 = this.tf;
+		var v2 = stage.get_width() / 2;
+		_this3.posChanged = true;
+		_this3.x = v2;
+	}
+	,getSize: function(width,height,scaling) {
+		var size;
+		if(height > width) {
+			size = Math.floor(this.s2d.width * scaling);
+		} else {
+			size = Math.floor(this.s2d.height * scaling);
+		}
+		return size;
+	}
+	,init: function() {
+		var _gthis = this;
+		var size = this.getSize(this.s2d.width,this.s2d.height,0.2);
+		var _this = [16711680,65280,255];
+		var result = new Array(_this.length);
+		var _g = 0;
+		var _g1 = _this.length;
+		while(_g < _g1) {
+			var i = _g++;
+			result[i] = h2d_Tile.fromColor(_this[i],size,size);
+		}
+		var tiles = result;
+		var _g2 = 0;
+		while(_g2 < tiles.length) {
+			var tile = tiles[_g2];
+			++_g2;
+			tile.dx = -tile.width / 2;
+			tile.dy = -tile.height / 2;
+		}
+		this.anim = new h2d_Anim(tiles,null,this.s2d);
+		this.anim.speed = 1;
 		var _this1 = this.anim;
 		_this1.posChanged = true;
-		_this1.y = this.s2d.height * 0.5;
-		var tf = new h2d_Text(hxd_res_DefaultFont.get(),this.s2d);
-		tf.set_text("Hello World !");
-		tf.set_textAlign(h2d_Align.Center);
-		tf.posChanged = true;
-		tf.x = this.s2d.width * 0.5;
-		this.interaction = new h2d_Interactive(width,height,this.anim);
+		_this1.x = this.s2d.width * 0.5;
+		var _this2 = this.anim;
+		_this2.posChanged = true;
+		_this2.y = this.s2d.height * 0.5;
+		this.tf = new h2d_Text(hxd_res_DefaultFont.get(),this.s2d);
+		this.tf.set_text("Hello World !");
+		this.tf.set_textAlign(h2d_Align.Center);
+		var _this3 = this.tf;
+		_this3.posChanged = true;
+		_this3.x = this.s2d.width * 0.5;
+		this.interaction = new h2d_Interactive(size,size,this.anim);
+		var _this4 = this.interaction;
+		_this4.posChanged = true;
+		_this4.x = size / -2;
+		var _this5 = this.interaction;
+		_this5.posChanged = true;
+		_this5.y = size / -2;
 		this.interaction.onOver = function(event) {
 			_gthis.anim.alpha = 0.7;
 		};
 		this.interaction.onOut = function(event1) {
 			_gthis.anim.alpha = 1.0;
 		};
+		hxd_Window.getInstance().addResizeEvent(function() {
+			haxe_Log.trace("resizing",{ fileName : "Main.hx", lineNumber : 64, className : "Main", methodName : "init"});
+			_gthis.rescale();
+		});
 	}
 	,update: function(dt) {
+		var _g = this.anim;
+		_g.posChanged = true;
+		_g.rotation += 0.1 * dt;
 	}
 	,__class__: Main
 });
@@ -20792,73 +20834,6 @@ var h3d_impl_RenderFlag = $hxEnums["h3d.impl.RenderFlag"] = { __ename__ : true, 
 	,CameraHandness: {_hx_index:0,__enum__:"h3d.impl.RenderFlag",toString:$estr}
 };
 h3d_impl_RenderFlag.__empty_constructs__ = [h3d_impl_RenderFlag.CameraHandness];
-var haxe_IMap = function() { };
-$hxClasses["haxe.IMap"] = haxe_IMap;
-haxe_IMap.__name__ = "haxe.IMap";
-haxe_IMap.__isInterface__ = true;
-var haxe_ds_StringMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
-haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
-haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
-haxe_ds_StringMap.prototype = {
-	setReserved: function(key,value) {
-		if(this.rh == null) {
-			this.rh = { };
-		}
-		this.rh["$" + key] = value;
-	}
-	,getReserved: function(key) {
-		if(this.rh == null) {
-			return null;
-		} else {
-			return this.rh["$" + key];
-		}
-	}
-	,existsReserved: function(key) {
-		if(this.rh == null) {
-			return false;
-		}
-		return this.rh.hasOwnProperty("$" + key);
-	}
-	,remove: function(key) {
-		if(__map_reserved[key] != null) {
-			key = "$" + key;
-			if(this.rh == null || !this.rh.hasOwnProperty(key)) {
-				return false;
-			}
-			delete(this.rh[key]);
-			return true;
-		} else {
-			if(!this.h.hasOwnProperty(key)) {
-				return false;
-			}
-			delete(this.h[key]);
-			return true;
-		}
-	}
-	,keys: function() {
-		return HxOverrides.iter(this.arrayKeys());
-	}
-	,arrayKeys: function() {
-		var out = [];
-		for( var key in this.h ) {
-		if(this.h.hasOwnProperty(key)) {
-			out.push(key);
-		}
-		}
-		if(this.rh != null) {
-			for( var key in this.rh ) {
-			if(key.charCodeAt(0) == 36) {
-				out.push(key.substr(1));
-			}
-			}
-		}
-		return out;
-	}
-	,__class__: haxe_ds_StringMap
-};
 var h3d_impl_InputNames = function(names) {
 	this.id = h3d_impl_InputNames.UID++;
 	this.names = names;
@@ -20903,6 +20878,9 @@ h3d_impl_Driver.prototype = {
 	,begin: function(frame) {
 	}
 	,log: function(str) {
+		if(this.logEnable) {
+			this.logImpl(str);
+		}
 	}
 	,generateMipMaps: function(texture) {
 		throw new js__$Boot_HaxeError("Mipmaps auto generation is not supported on this platform");
@@ -24518,35 +24496,6 @@ h3d_mat_Stencil.prototype = {
 	}
 	,__class__: h3d_mat_Stencil
 };
-var haxe_ds_IntMap = function() {
-	this.h = { };
-};
-$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
-haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
-haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
-haxe_ds_IntMap.prototype = {
-	remove: function(key) {
-		if(!this.h.hasOwnProperty(key)) {
-			return false;
-		}
-		delete(this.h[key]);
-		return true;
-	}
-	,keys: function() {
-		var a = [];
-		for( var key in this.h ) (this.h.hasOwnProperty(key) ? a.push(key | 0) : null);
-		return HxOverrides.iter(a);
-	}
-	,iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
-	}
-	,__class__: haxe_ds_IntMap
-};
 var hxd_PixelFormat = $hxEnums["hxd.PixelFormat"] = { __ename__ : true, __constructs__ : ["ARGB","BGRA","RGBA","RGBA16F","RGBA32F","R8","R16F","R32F","RG8","RG16F","RG32F","RGB8","RGB16F","RGB32F","SRGB","SRGB_ALPHA","RGB10A2","RG11B10UF","S3TC"]
 	,ARGB: {_hx_index:0,__enum__:"hxd.PixelFormat",toString:$estr}
 	,BGRA: {_hx_index:1,__enum__:"hxd.PixelFormat",toString:$estr}
@@ -26404,6 +26353,10 @@ h3d_pass_Default.prototype = $extend(h3d_pass_Base.prototype,{
 		}
 	}
 	,log: function(str) {
+		var _this = this.ctx.engine.driver;
+		if(_this.logEnable) {
+			_this.logImpl(str);
+		}
 	}
 	,drawObject: function(p) {
 		this.ctx.drawPass = p;
@@ -30905,6 +30858,9 @@ h3d_scene_Object.prototype = {
 		if(o == null) {
 			o = new h3d_scene_Object();
 		}
+		if(js_Boot.getClass(o) != js_Boot.getClass(this)) {
+			throw new js__$Boot_HaxeError(Std.string(this) + " is missing clone()");
+		}
 		var v = this.x;
 		o.x = v;
 		var f = 1;
@@ -33202,6 +33158,7 @@ var h3d_scene_Scene = function(createRenderer,createLightSystem) {
 	if(createRenderer == null) {
 		createRenderer = true;
 	}
+	this.checkPasses = true;
 	h3d_scene_Object.call(this,null);
 	this.window = hxd_Window.getInstance();
 	this.eventListeners = [];
@@ -33914,6 +33871,16 @@ h3d_scene_Scene.prototype = $extend(h3d_scene_Object.prototype,{
 			this.lightSystem.initLights(this.ctx);
 		}
 		this.renderer.process(passes);
+		if(!this.ctx.computingStatic && this.checkPasses) {
+			var _g2 = 0;
+			while(_g2 < passes.length) {
+				var p2 = passes[_g2];
+				++_g2;
+				if(!p2.rendered) {
+					haxe_Log.trace("Pass " + p2.name + " has not been rendered : don't know how to handle.",{ fileName : "h3d/scene/Scene.hx", lineNumber : 438, className : "h3d.scene.Scene", methodName : "render"});
+				}
+			}
+		}
 		if(this.camera.rightHanded) {
 			engine.driver.setRenderFlag(h3d_impl_RenderFlag.CameraHandness,0);
 		}
@@ -33921,13 +33888,13 @@ h3d_scene_Scene.prototype = $extend(h3d_scene_Object.prototype,{
 		this.ctx.scene = null;
 		this.ctx.camera = null;
 		this.ctx.engine = null;
-		var _g2 = 0;
+		var _g3 = 0;
 		var _g11 = passIndex;
-		while(_g2 < _g11) {
-			var i1 = _g2++;
-			var p2 = this.ctx.cachedPassObjects[i1];
-			p2.name = null;
-			var _this1 = p2.passes;
+		while(_g3 < _g11) {
+			var i1 = _g3++;
+			var p3 = this.ctx.cachedPassObjects[i1];
+			p3.name = null;
+			var _this1 = p3.passes;
 			_this1.current = null;
 			_this1.discarded = _this1.lastDisc = null;
 		}
@@ -36540,6 +36507,10 @@ h3d_shader_VolumeDecal.prototype = $extend(hxsl_Shader.prototype,{
 	}
 	,__class__: h3d_shader_VolumeDecal
 });
+var haxe_IMap = function() { };
+$hxClasses["haxe.IMap"] = haxe_IMap;
+haxe_IMap.__name__ = "haxe.IMap";
+haxe_IMap.__isInterface__ = true;
 var haxe_EntryPoint = function() { };
 $hxClasses["haxe.EntryPoint"] = haxe_EntryPoint;
 haxe_EntryPoint.__name__ = "haxe.EntryPoint";
@@ -37878,6 +37849,35 @@ haxe_ds_EnumValueMap.prototype = $extend(haxe_ds_BalancedTree.prototype,{
 	}
 	,__class__: haxe_ds_EnumValueMap
 });
+var haxe_ds_IntMap = function() {
+	this.h = { };
+};
+$hxClasses["haxe.ds.IntMap"] = haxe_ds_IntMap;
+haxe_ds_IntMap.__name__ = "haxe.ds.IntMap";
+haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+haxe_ds_IntMap.prototype = {
+	remove: function(key) {
+		if(!this.h.hasOwnProperty(key)) {
+			return false;
+		}
+		delete(this.h[key]);
+		return true;
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) (this.h.hasOwnProperty(key) ? a.push(key | 0) : null);
+		return HxOverrides.iter(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
+	}
+	,__class__: haxe_ds_IntMap
+};
 var haxe_ds_List = function() {
 	this.length = 0;
 };
@@ -37991,6 +37991,69 @@ haxe_ds__$StringMap_StringMapIterator.prototype = {
 		}
 	}
 	,__class__: haxe_ds__$StringMap_StringMapIterator
+};
+var haxe_ds_StringMap = function() {
+	this.h = { };
+};
+$hxClasses["haxe.ds.StringMap"] = haxe_ds_StringMap;
+haxe_ds_StringMap.__name__ = "haxe.ds.StringMap";
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+haxe_ds_StringMap.prototype = {
+	setReserved: function(key,value) {
+		if(this.rh == null) {
+			this.rh = { };
+		}
+		this.rh["$" + key] = value;
+	}
+	,getReserved: function(key) {
+		if(this.rh == null) {
+			return null;
+		} else {
+			return this.rh["$" + key];
+		}
+	}
+	,existsReserved: function(key) {
+		if(this.rh == null) {
+			return false;
+		}
+		return this.rh.hasOwnProperty("$" + key);
+	}
+	,remove: function(key) {
+		if(__map_reserved[key] != null) {
+			key = "$" + key;
+			if(this.rh == null || !this.rh.hasOwnProperty(key)) {
+				return false;
+			}
+			delete(this.rh[key]);
+			return true;
+		} else {
+			if(!this.h.hasOwnProperty(key)) {
+				return false;
+			}
+			delete(this.h[key]);
+			return true;
+		}
+	}
+	,keys: function() {
+		return HxOverrides.iter(this.arrayKeys());
+	}
+	,arrayKeys: function() {
+		var out = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) {
+			out.push(key);
+		}
+		}
+		if(this.rh != null) {
+			for( var key in this.rh ) {
+			if(key.charCodeAt(0) == 36) {
+				out.push(key.substr(1));
+			}
+			}
+		}
+		return out;
+	}
+	,__class__: haxe_ds_StringMap
 };
 var haxe_ds__$Vector_Vector_$Impl_$ = {};
 $hxClasses["haxe.ds._Vector.Vector_Impl_"] = haxe_ds__$Vector_Vector_$Impl_$;
@@ -42099,26 +42162,6 @@ var hxd_SystemValue = $hxEnums["hxd.SystemValue"] = { __ename__ : true, __constr
 	,IsMobile: {_hx_index:2,__enum__:"hxd.SystemValue",toString:$estr}
 };
 hxd_SystemValue.__empty_constructs__ = [hxd_SystemValue.IsTouch,hxd_SystemValue.IsWindowed,hxd_SystemValue.IsMobile];
-var js__$Boot_HaxeError = function(val) {
-	Error.call(this);
-	this.val = val;
-	if(Error.captureStackTrace) {
-		Error.captureStackTrace(this,js__$Boot_HaxeError);
-	}
-};
-$hxClasses["js._Boot.HaxeError"] = js__$Boot_HaxeError;
-js__$Boot_HaxeError.__name__ = "js._Boot.HaxeError";
-js__$Boot_HaxeError.wrap = function(val) {
-	if(((val) instanceof Error)) {
-		return val;
-	} else {
-		return new js__$Boot_HaxeError(val);
-	}
-};
-js__$Boot_HaxeError.__super__ = Error;
-js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
-	__class__: js__$Boot_HaxeError
-});
 var hxd_Timer = function() { };
 $hxClasses["hxd.Timer"] = hxd_Timer;
 hxd_Timer.__name__ = "hxd.Timer";
@@ -45727,8 +45770,14 @@ hxd_res_NanoJpeg.prototype = {
 		this.pos += count;
 		this.size -= count;
 		this.length -= count;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,syntax: function(flag) {
+		if(flag) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,get: function(p) {
 		return this.bytes.b[this.pos + p];
@@ -45755,6 +45804,9 @@ hxd_res_NanoJpeg.prototype = {
 			this.bufbits += 8;
 			this.buf = this.buf << 8 | newbyte;
 			if(newbyte == 255) {
+				if(this.size == 0) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				var marker = this.bytes.b[this.pos];
 				this.pos++;
 				this.size--;
@@ -45765,6 +45817,9 @@ hxd_res_NanoJpeg.prototype = {
 				case 0:case 255:
 					break;
 				default:
+					if((marker & 248) != 208) {
+						throw new js__$Boot_HaxeError("Invalid JPEG file");
+					}
 					this.buf = this.buf << 8 | marker;
 					this.bufbits += 8;
 				}
@@ -45784,26 +45839,59 @@ hxd_res_NanoJpeg.prototype = {
 		return r;
 	}
 	,njDecodeLength: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,njSkipMarker: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		var count = this.length;
 		this.pos += count;
 		this.size -= count;
 		this.length -= count;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,njDecodeSOF: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
+		if(this.length < 9) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		if(this.bytes.b[this.pos] != 8) {
 			this.notSupported();
 		}
@@ -45813,11 +45901,17 @@ hxd_res_NanoJpeg.prototype = {
 		this.pos += 6;
 		this.size -= 6;
 		this.length -= 6;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		switch(this.ncomp) {
 		case 1:case 3:
 			break;
 		default:
 			this.notSupported();
+		}
+		if(this.length < this.ncomp * 3) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
 		}
 		var ssxmax = 0;
 		var ssymax = 0;
@@ -45828,17 +45922,29 @@ hxd_res_NanoJpeg.prototype = {
 			var c = this.comps[i];
 			c.cid = this.bytes.b[this.pos];
 			c.ssx = this.bytes.b[this.pos + 1] >> 4;
+			if(c.ssx == 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			if((c.ssx & c.ssx - 1) != 0) {
 				this.notSupported();
 			}
 			c.ssy = this.bytes.b[this.pos + 1] & 15;
+			if(c.ssy == 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			if((c.ssy & c.ssy - 1) != 0) {
 				this.notSupported();
 			}
 			c.qtsel = this.bytes.b[this.pos + 2];
+			if((c.qtsel & 252) != 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			this.pos += 3;
 			this.size -= 3;
 			this.length -= 3;
+			if(this.size < 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			this.qtused |= 1 << c.qtsel;
 			if(c.ssx > ssxmax) {
 				ssxmax = c.ssx;
@@ -45875,14 +45981,29 @@ hxd_res_NanoJpeg.prototype = {
 		this.pos += count;
 		this.size -= count;
 		this.length -= count;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,njDecodeDQT: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		while(this.length >= 65) {
 			var i = this.bytes.b[this.pos];
+			if((i & 252) != 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			this.qtavail |= 1 << i;
 			var t = this.qtab[i];
 			var _g = 0;
@@ -45893,15 +46014,33 @@ hxd_res_NanoJpeg.prototype = {
 			this.pos += 65;
 			this.size -= 65;
 			this.length -= 65;
+			if(this.size < 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
+		}
+		if(this.length != 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
 		}
 	}
 	,njDecodeDHT: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		while(this.length >= 17) {
 			var i = this.bytes.b[this.pos];
+			if((i & 236) != 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			i = i >> 4 & 1 | (i & 3) << 1;
 			this.counts[0] = this.bytes.b[this.pos + 1];
 			this.counts[1] = this.bytes.b[this.pos + 2];
@@ -45922,6 +46061,9 @@ hxd_res_NanoJpeg.prototype = {
 			this.pos += 17;
 			this.size -= 17;
 			this.length -= 17;
+			if(this.size < 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			var vlc = this.vlctab[i];
 			var vpos = 0;
 			var remain = 65536;
@@ -45934,7 +46076,13 @@ hxd_res_NanoJpeg.prototype = {
 				if(currcnt == 0) {
 					continue;
 				}
+				if(this.length < currcnt) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				remain -= currcnt << 16 - codelen;
+				if(remain < 0) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				var _g1 = 0;
 				var _g11 = currcnt;
 				while(_g1 < _g11) {
@@ -45951,27 +46099,51 @@ hxd_res_NanoJpeg.prototype = {
 				this.pos += currcnt;
 				this.size -= currcnt;
 				this.length -= currcnt;
+				if(this.size < 0) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 			}
 			while(remain-- != 0) {
 				vlc.b[vpos] = 0;
 				vpos += 2;
 			}
 		}
+		if(this.length != 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,njDecodeDRI: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
+		if(this.length < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.rstinterval = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
 		var count = this.length;
 		this.pos += count;
 		this.size -= count;
 		this.length -= count;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 	}
 	,njGetVLC: function(vlc) {
 		var value = this.njShowBits(16);
 		var bits = vlc.b[value << 1];
+		if(bits == 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		if(this.bufbits < bits) {
 			this.njShowBits(bits);
 		}
@@ -46130,6 +46302,9 @@ hxd_res_NanoJpeg.prototype = {
 		var vlc = this.vlctab[c.dctabsel];
 		var value1 = this.njShowBits(16);
 		var bits = vlc.b[value1 << 1];
+		if(bits == 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		if(this.bufbits < bits) {
 			this.njShowBits(bits);
 		}
@@ -46156,6 +46331,9 @@ hxd_res_NanoJpeg.prototype = {
 		while(true) {
 			var value2 = this.njShowBits(16);
 			var bits1 = at.b[value2 << 1];
+			if(bits1 == 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			if(this.bufbits < bits1) {
 				this.njShowBits(bits1);
 			}
@@ -46177,7 +46355,13 @@ hxd_res_NanoJpeg.prototype = {
 			if(this.vlcCode == 0) {
 				break;
 			}
+			if((this.vlcCode & 15) == 0 && this.vlcCode != 240) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			coef += (this.vlcCode >> 4) + 1;
+			if(coef > 63) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			this.block[this.njZZ[coef]] = value * qt[coef];
 			if(!(coef < 63)) {
 				break;
@@ -47212,26 +47396,50 @@ hxd_res_NanoJpeg.prototype = {
 		throw new js__$Boot_HaxeError("This JPG file is not supported");
 	}
 	,njDecodeScan: function() {
+		if(this.size < 2) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+		if(this.length > this.size) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
+		if(this.length < 4 + 2 * this.ncomp) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		if(this.bytes.b[this.pos] != this.ncomp) {
 			this.notSupported();
 		}
 		this.pos += 1;
 		this.size -= 1;
 		this.length -= 1;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		var _g = 0;
 		var _g1 = this.ncomp;
 		while(_g < _g1) {
 			var i = _g++;
 			var c = this.comps[i];
+			if(this.bytes.b[this.pos] != c.cid) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
+			if((this.bytes.b[this.pos + 1] & 236) != 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			c.dctabsel = this.bytes.b[this.pos + 1] >> 4 << 1;
 			c.actabsel = (this.bytes.b[this.pos + 1] & 3) << 1 | 1;
 			this.pos += 2;
 			this.size -= 2;
 			this.length -= 2;
+			if(this.size < 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 		}
 		var start = this.bytes.b[this.pos];
 		var count = this.bytes.b[this.pos + 1];
@@ -47243,6 +47451,9 @@ hxd_res_NanoJpeg.prototype = {
 		this.pos += count1;
 		this.size -= count1;
 		this.length -= count1;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		var mbx = 0;
 		var mby = 0;
 		var rstcount = this.rstinterval;
@@ -47276,6 +47487,9 @@ hxd_res_NanoJpeg.prototype = {
 				var r = this.njShowBits(16);
 				this.bufbits -= 16;
 				var i2 = r;
+				if((i2 & 65528) != 65488 || (i2 & 7) != nextrst) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				nextrst = nextrst + 1 & 7;
 				rstcount = this.rstinterval;
 				this.comps[0].dcpred = 0;
@@ -47489,10 +47703,19 @@ hxd_res_NanoJpeg.prototype = {
 		this.pos += 2;
 		this.size -= 2;
 		this.length -= 2;
+		if(this.size < 0) {
+			throw new js__$Boot_HaxeError("Invalid JPEG file");
+		}
 		_hx_loop1: while(true) {
+			if(this.size < 2 || this.bytes.b[this.pos] != 255) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			this.pos += 2;
 			this.size -= 2;
 			this.length -= 2;
+			if(this.size < 0) {
+				throw new js__$Boot_HaxeError("Invalid JPEG file");
+			}
 			switch(this.bytes.b[this.pos + (-1)]) {
 			case 192:
 				this.njDecodeSOF();
@@ -47531,28 +47754,52 @@ hxd_res_NanoJpeg.prototype = {
 				this.njDecodeDRI();
 				break;
 			case 254:
+				if(this.size < 2) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+				if(this.length > this.size) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				this.pos += 2;
 				this.size -= 2;
 				this.length -= 2;
+				if(this.size < 0) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				var count = this.length;
 				this.pos += count;
 				this.size -= count;
 				this.length -= count;
+				if(this.size < 0) {
+					throw new js__$Boot_HaxeError("Invalid JPEG file");
+				}
 				break;
 			default:
 				switch(this.bytes.b[this.pos + (-1)] & 240) {
 				case 192:
 					throw new js__$Boot_HaxeError("Unsupported jpeg type " + (this.bytes.b[this.pos + (-1)] & 15));
 				case 224:
+					if(this.size < 2) {
+						throw new js__$Boot_HaxeError("Invalid JPEG file");
+					}
 					this.length = this.bytes.b[this.pos] << 8 | this.bytes.b[this.pos + 1];
+					if(this.length > this.size) {
+						throw new js__$Boot_HaxeError("Invalid JPEG file");
+					}
 					this.pos += 2;
 					this.size -= 2;
 					this.length -= 2;
+					if(this.size < 0) {
+						throw new js__$Boot_HaxeError("Invalid JPEG file");
+					}
 					var count1 = this.length;
 					this.pos += count1;
 					this.size -= count1;
 					this.length -= count1;
+					if(this.size < 0) {
+						throw new js__$Boot_HaxeError("Invalid JPEG file");
+					}
 					break;
 				default:
 					throw new js__$Boot_HaxeError("Unsupported jpeg tag 0x" + StringTools.hex(this.bytes.b[this.pos + (-1)],2));
@@ -48478,6 +48725,7 @@ hxd_snd_Manager.prototype = {
 			c1.duration = c1.sound.getData().get_duration();
 			var playedSamples = this.driver.getPlayedSampleCount(s1.handle);
 			if(playedSamples < 0) {
+				haxe_Log.trace("playedSamples should positive : bug in driver",{ fileName : "hxd/snd/Manager.hx", lineNumber : 360, className : "hxd.snd.Manager", methodName : "update"});
 				playedSamples = 0;
 			}
 			c1.set_position((s1.start + playedSamples) / s1.buffers[0].sampleRate);
@@ -51208,105 +51456,123 @@ hxsl_Cache.prototype = {
 		haxe_ds_ArraySort.sort(shaderDatas,function(s11,s2) {
 			return s2.p - s11.p;
 		});
+		var _g1 = 0;
+		while(_g1 < shaderDatas.length) {
+			var s3 = shaderDatas[_g1];
+			++_g1;
+			hxsl_Printer.check(s3.inst.shader);
+		}
 		var linker = new hxsl_Linker(batchMode);
-		var s3;
+		var s4;
 		try {
-			var _g1 = [];
-			var _g2 = 0;
-			while(_g2 < shaderDatas.length) {
-				var s4 = shaderDatas[_g2];
-				++_g2;
-				_g1.push(s4.inst.shader);
+			var _g2 = [];
+			var _g3 = 0;
+			while(_g3 < shaderDatas.length) {
+				var s5 = shaderDatas[_g3];
+				++_g3;
+				_g2.push(s5.inst.shader);
 			}
-			s3 = linker.link(_g1);
+			s4 = linker.link(_g2);
 		} catch( e ) {
 			var e1 = ((e) instanceof js__$Boot_HaxeError) ? e.val : e;
 			if(((e1) instanceof hxsl_Error)) {
 				var e2 = e1;
-				var _g11 = [];
-				var _g21 = 0;
-				while(_g21 < shaderDatas.length) {
-					var s5 = shaderDatas[_g21];
-					++_g21;
-					_g11.push(hxsl_Printer.shaderToString(s5.inst.shader));
+				var _g21 = [];
+				var _g31 = 0;
+				while(_g31 < shaderDatas.length) {
+					var s6 = shaderDatas[_g31];
+					++_g31;
+					_g21.push(hxsl_Printer.shaderToString(s6.inst.shader));
 				}
-				var shaders1 = _g11;
+				var shaders1 = _g21;
 				e2.msg += "\n\nin\n\n" + shaders1.join("\n-----\n");
 				throw new js__$Boot_HaxeError(e2);
 			} else {
 				throw e;
 			}
 		}
+		var _g22 = [];
+		var _g32 = 0;
+		while(_g32 < shaderDatas.length) {
+			var s7 = shaderDatas[_g32];
+			++_g32;
+			_g22.push(s7.inst.shader);
+		}
+		hxsl_Printer.check(s4,_g22);
 		var paramVars = new haxe_ds_IntMap();
-		var _g12 = 0;
-		var _g22 = linker.allVars;
-		while(_g12 < _g22.length) {
-			var v = _g22[_g12];
-			++_g12;
+		var _g4 = 0;
+		var _g5 = linker.allVars;
+		while(_g4 < _g5.length) {
+			var v = _g5[_g4];
+			++_g4;
 			if(v.v.kind == hxsl_VarKind.Param) {
-				var _g13 = v.v.type;
-				if(_g13._hx_index == 13) {
-					var _g23 = _g13.vl;
+				var _g41 = v.v.type;
+				if(_g41._hx_index == 13) {
+					var _g51 = _g41.vl;
 					continue;
 				}
 				var inf = shaderDatas[v.instanceIndex];
 				paramVars.h[v.id] = { instance : inf.index, index : inf.inst.params.h[v.merged[0].id]};
 			}
 		}
-		var prev = s3;
-		var s6;
+		var prev = s4;
+		var s8;
 		try {
-			s6 = new hxsl_Splitter().split(s3);
+			s8 = new hxsl_Splitter().split(s4);
 		} catch( e3 ) {
 			var e4 = ((e3) instanceof js__$Boot_HaxeError) ? e3.val : e3;
 			if(((e4) instanceof hxsl_Error)) {
 				var e5 = e4;
-				e5.msg += "\n\nin\n\n" + hxsl_Printer.shaderToString(s3);
+				e5.msg += "\n\nin\n\n" + hxsl_Printer.shaderToString(s4);
 				throw new js__$Boot_HaxeError(e5);
 			} else {
 				throw e3;
 			}
 		}
 		if(batchMode) {
-			var _g3 = 0;
-			var _g4 = s6.vertex.vars;
-			while(_g3 < _g4.length) {
-				var v1 = _g4[_g3];
-				++_g3;
+			var _g6 = 0;
+			var _g7 = s8.vertex.vars;
+			while(_g6 < _g7.length) {
+				var v1 = _g7[_g6];
+				++_g6;
 				if(v1.qualifiers != null && v1.qualifiers.indexOf(hxsl_VarQualifier.PerObject) >= 0) {
 					v1.kind = hxsl_VarKind.Local;
 				}
 			}
 		}
-		var prev1 = s6;
-		var s7 = new hxsl_Dce().dce(s6.vertex,s6.fragment);
-		var r = this.buildRuntimeShader(s7.vertex,s7.fragment,paramVars);
-		var _g31 = [];
-		var _g4_l = shaders;
-		var _g4_last = null;
-		while(_g4_l != _g4_last) {
-			var s8 = _g4_l.s;
-			_g4_l = _g4_l.next;
-			var s9 = s8;
-			_g31.push(new hxsl_ShaderInstanceDesc(s9.shader,s9.constBits));
+		hxsl_Printer.check(s8.vertex,[prev]);
+		hxsl_Printer.check(s8.fragment,[prev]);
+		var prev1 = s8;
+		var s9 = new hxsl_Dce().dce(s8.vertex,s8.fragment);
+		hxsl_Printer.check(s9.vertex,[prev1.vertex]);
+		hxsl_Printer.check(s9.fragment,[prev1.fragment]);
+		var r = this.buildRuntimeShader(s9.vertex,s9.fragment,paramVars);
+		var _g61 = [];
+		var _g7_l = shaders;
+		var _g7_last = null;
+		while(_g7_l != _g7_last) {
+			var s10 = _g7_l.s;
+			_g7_l = _g7_l.next;
+			var s12 = s10;
+			_g61.push(new hxsl_ShaderInstanceDesc(s12.shader,s12.constBits));
 		}
-		r.spec = { instances : _g31, signature : null};
-		var _g5 = 0;
-		var _g6 = shaderDatas.length;
-		while(_g5 < _g6) {
-			var i1 = _g5++;
-			var s10 = shaderDatas[shaderDatas.length - 1 - i1];
-			r.spec.instances[s10.index].index = i1;
-		}
-		var _g7 = [];
+		r.spec = { instances : _g61, signature : null};
 		var _g8 = 0;
-		var _g9 = r.spec.instances;
-		while(_g8 < _g9.length) {
-			var i2 = _g9[_g8];
-			++_g8;
-			_g7.push(i2.shader.data.name + "_" + i2.bits + "_" + i2.index);
+		var _g9 = shaderDatas.length;
+		while(_g8 < _g9) {
+			var i1 = _g8++;
+			var s13 = shaderDatas[shaderDatas.length - 1 - i1];
+			r.spec.instances[s13.index].index = i1;
 		}
-		var signParts = _g7;
+		var _g10 = [];
+		var _g11 = 0;
+		var _g12 = r.spec.instances;
+		while(_g11 < _g12.length) {
+			var i2 = _g12[_g11];
+			++_g11;
+			_g10.push(i2.shader.data.name + "_" + i2.bits + "_" + i2.index);
+		}
+		var signParts = _g10;
 		var tmp = signParts.join(":");
 		r.spec.signature = haxe_crypto_Md5.encode(tmp);
 		r.signature = haxe_crypto_Md5.encode(hxsl_Printer.shaderToString(r.vertex.data) + hxsl_Printer.shaderToString(r.fragment.data));
@@ -51335,6 +51601,8 @@ hxsl_Cache.prototype = {
 		r.globals = new haxe_ds_IntMap();
 		this.initGlobals(r,r.vertex);
 		this.initGlobals(r,r.fragment);
+		hxsl_Printer.check(r.vertex.data,[vertex]);
+		hxsl_Printer.check(r.fragment.data,[fragment]);
 		return r;
 	}
 	,initGlobals: function(r,s) {
@@ -59838,6 +60106,7 @@ hxsl_SharedShader.prototype = {
 		$eval.inlineCalls = true;
 		$eval.unrollLoops = hxsl_SharedShader.UNROLL_LOOPS;
 		var i = new hxsl_ShaderInstance($eval.eval(this.data));
+		hxsl_Printer.check(i.shader,[this.data]);
 		this.paramsCount = 0;
 		var _g2 = 0;
 		var _g11 = this.data.vars;
@@ -60336,6 +60605,26 @@ hxsl_ChannelTools.__name__ = "hxsl.ChannelTools";
 hxsl_ChannelTools.isPackedFormat = function(c) {
 	return c.format == h3d_mat_Texture.nativeFormat;
 };
+var js__$Boot_HaxeError = function(val) {
+	Error.call(this);
+	this.val = val;
+	if(Error.captureStackTrace) {
+		Error.captureStackTrace(this,js__$Boot_HaxeError);
+	}
+};
+$hxClasses["js._Boot.HaxeError"] = js__$Boot_HaxeError;
+js__$Boot_HaxeError.__name__ = "js._Boot.HaxeError";
+js__$Boot_HaxeError.wrap = function(val) {
+	if(((val) instanceof Error)) {
+		return val;
+	} else {
+		return new js__$Boot_HaxeError(val);
+	}
+};
+js__$Boot_HaxeError.__super__ = Error;
+js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
+	__class__: js__$Boot_HaxeError
+});
 var js_html__$CanvasElement_CanvasUtil = function() { };
 $hxClasses["js.html._CanvasElement.CanvasUtil"] = js_html__$CanvasElement_CanvasUtil;
 js_html__$CanvasElement_CanvasUtil.__name__ = "js.html._CanvasElement.CanvasUtil";
@@ -60370,11 +60659,8 @@ var Float = Number;
 var Bool = Boolean;
 var Class = { };
 var Enum = { };
-var __map_reserved = {};
 haxe_ds_ObjectMap.count = 0;
-Object.defineProperty(js__$Boot_HaxeError.prototype,"message",{ get : function() {
-	return String(this.val);
-}});
+var __map_reserved = {};
 haxe_MainLoop.add(hxd_System.updateCursor,-1);
 var hx__registerFont;
 hx__registerFont = function(name,data) {
@@ -60395,6 +60681,9 @@ hx__registerFont = function(name,data) {
 	window.document.body.appendChild(div);
 };
 js_Boot.__toStr = ({ }).toString;
+Object.defineProperty(js__$Boot_HaxeError.prototype,"message",{ get : function() {
+	return String(this.val);
+}});
 Xml.Element = 0;
 Xml.PCData = 1;
 Xml.CData = 2;
@@ -60818,7 +61107,7 @@ hxd_fmt_hmd_Reader.BLEND = h2d_BlendMode.__empty_constructs__.slice();
 hxd_fmt_hmd_Reader.CULLING = h3d_mat_Face.__empty_constructs__.slice();
 hxd_impl__$Allocator_BufferFlags_$Impl_$.Dynamic = 0;
 hxd_impl__$Allocator_BufferFlags_$Impl_$.UniformDynamic = 1;
-hxd_res_Resource.LIVE_UPDATE = false;
+hxd_res_Resource.LIVE_UPDATE = true;
 hxd_res__$Image_ImageFormat_$Impl_$.Jpg = 0;
 hxd_res__$Image_ImageFormat_$Impl_$.Png = 1;
 hxd_res__$Image_ImageFormat_$Impl_$.Gif = 2;
@@ -60951,3 +61240,5 @@ hxsl_SharedShader.UNROLL_LOOPS = false;
 	haxe_EntryPoint.run();
 }
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
+
+//# sourceMappingURL=game.js.map

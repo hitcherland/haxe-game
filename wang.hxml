@@ -1,0 +1,5 @@
+-lib heaps
+-lib hlsdl
+-lib bitmap
+-hl build/hl/game.hl
+-main Wang
