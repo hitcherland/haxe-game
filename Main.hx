@@ -15,10 +15,12 @@ class Main extends hxd.App {
     var colours:Array<String>;
     var wangMap:WangMap;
     var bitmap:Null<h2d.Bitmap> = null;
+    var scaling:Float = 0.8;
+    var _last_update = 0;
 
     function rescale() {
         var stage = hxd.Window.getInstance();
-        var size = getSize(stage.width, stage.height, 1.0);
+        var size = getSize(stage.width, stage.height);
         var tileMap = wangMap.makeTileMap(size, size);
         if(bitmap != null) {
             bitmap.remove();
@@ -28,7 +30,7 @@ class Main extends hxd.App {
         bitmap.y = (stage.height - size) / 2;
     }
 
-    function getSize(width:Int, height:Int, scaling:Float) {
+    function getSize(width:Int, height:Int) {
         var size:Int;
         if(height > width) {
             size = floor(s2d.width * scaling);
@@ -82,11 +84,13 @@ class Main extends hxd.App {
         random = new Random();
         random.setStringSeed("hello");
 
+        var bg = new h2d.Bitmap(h2d.Tile.fromColor(0xFFFFFF, s2d.width, s2d.height), s2d);
+
         colours = new Array();
         var cLength = 16;
         var cOffset = random.random() * 360;
         for(i in 0...cLength) {
-            colours[i] = Hsluv.hsluvToHex([360.0 * i / cLength + cOffset, 100.0, (i / (cLength - 1)) * 50.0]) + "FF";
+            colours[i] = Hsluv.hsluvToHex([-360.0 * i / cLength + cOffset, 100.0, 100 - (i / (cLength - 1)) * 80.0]) + "FF";
         }
 
         wangMap = new WangMap(settings.xTileCount, settings.yTileCount, colours);
@@ -99,7 +103,8 @@ class Main extends hxd.App {
     override function update(dt:Float) {
         if(Key.isPressed(Key.ESCAPE)) {
             hxd.System.exit();
-        } else if(Key.isDown(Key.SPACE)) {
+        } else if(Key.isDown(Key.SPACE) && _last_update + 10 < hxd.Timer.frameCount) {
+            _last_update = hxd.Timer.frameCount;
             generateMap(wangMap);
             this.rescale();
         }
