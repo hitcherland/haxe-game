@@ -15,18 +15,6 @@
 		},
 		{
 			"type": "hxml",
-			"file": "wang.hxml",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
-			"group": "build",
-			"label": "haxe: wang.hxml"
-		},
-		{
-			"type": "hxml",
 			"file": "js.hxml",
 			"problemMatcher": [
 				"$haxe-absolute",

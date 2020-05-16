@@ -1,107 +1,111 @@
+import seedyrng.Random;
+import StringTools.hex;
+import hsluv.Hsluv;
+import hxd.Key;
+import hxd.Math.floor;
+
+import WangMap.WangMap;
+import Settings.Settings;
+
 typedef TiledMapData = { layers:Array<{ data:Array<Int>}>, tilewidth:Int, tileheight:Int, width:Int, height:Int };
 
 class Main extends hxd.App {
-    var anim : h2d.Anim;
-    var interaction : h2d.Interactive;
-    var tf : h2d.Text;
+    var settings:Settings.Settings;
+    var random:Random;
+    var colours:Array<String>;
+    var wangMap:WangMap;
+    var bitmap:Null<h2d.Bitmap> = null;
 
     function rescale() {
         var stage = hxd.Window.getInstance();
-        var size = getSize(stage.width, stage.height, 0.2);
-        var tile = anim.getFrame();
-        var actualSize = getSize(Std.int(tile.width), Std.int(tile.height), 1);
-        var scale = size / actualSize;
-
-        anim.setScale(scale);
-        
-        anim.x = stage.width / 2;
-        anim.y = stage.height / 2;
-
-        tf.x = stage.width / 2;
+        var size = getSize(stage.width, stage.height, 1.0);
+        var tileMap = wangMap.makeTileMap(size, size);
+        if(bitmap != null) {
+            bitmap.remove();
+        }
+        bitmap = new h2d.Bitmap(tileMap, s2d);
+        bitmap.x = (stage.width - size) / 2;
+        bitmap.y = (stage.height - size) / 2;
     }
 
     function getSize(width:Int, height:Int, scaling:Float) {
         var size:Int;
         if(height > width) {
-            size = hxd.Math.floor(s2d.width * scaling);
+            size = floor(s2d.width * scaling);
         } else {
-            size = hxd.Math.floor(s2d.height * scaling);
+            size = floor(s2d.height * scaling);
         }
         return size;
     }
 
-    override function init() {
-        super.init();
-        var size:Int = getSize(s2d.width, s2d.height, 0.2);
+    function generateMap(map:WangMap) {
+        var width = map.width;
+        var height = map.height;
+        var range = map.typeBytes.length;
 
-        var mapData:TiledMapData = haxe.Json.parse(hxd.Res.wang_json.entry.getText());
-        var tileImage = hxd.Res.wang_png.toTile();
-        var group = new h2d.TileGroup(tileImage, s2d);
+        for(y in 0...height) {
+            var left = 0;
+            for(x in 0...width) { 
+                var right, up, down;
+                var index = 4 * (x + y * width);
 
-        var mw = mapData.width;
-        var mh = mapData.height;
-        var tw = mapData.tilewidth;
-        var th = mapData.tileheight;
-
-        var tiles = [
-            for(y in 0 ... Std.int(tileImage.height / th))
-            for(x in 0 ... Std.int(tileImage.width / tw))
-            tileImage.sub(x * tw, y * th, tw, th)
-        ];
-
-        for(layer in mapData.layers) {
-            // iterate on x and y
-            for(y in 0 ... mh) for (x in 0 ... mw) {
-                // get the tile id at the current position 
-                var tid = layer.data[x + y * mw];
-                if (tid != 0) { // skip transparent tiles
-                    // add a tile to the TileGroup
-                    group.add(x * tw, y * mapData.tilewidth, tiles[tid - 1]);
+                if(y == 0) {
+                    up = 0; //random.randomInt(0, range - 1);
+                } else {
+                    var upIndex = 4 * (x + (y - 1) * width) + 1;
+                    up = map.data[upIndex];
                 }
+
+                var wobble = random.randomInt(0, 8 );
+                var leftOffset = random.randomInt(floor(-wobble / 2), floor(wobble / 2));
+
+                var upWobble = wobble - hxd.Math.abs(leftOffset);
+                var upOffset = random.randomInt(-floor(upWobble / 2), floor(upWobble / 2));
+
+                right = floor(hxd.Math.clamp(left + leftOffset, 0, range - 1));
+                down = floor(hxd.Math.clamp(up + upOffset, 0, range - 1));
+
+                map.data[index + 0] = right;
+                map.data[index + 1] = down;
+                map.data[index + 2] = left;
+                map.data[index + 3] = up;
+
+                left = map.data[index + 0];
             }
         }
-        
-        for(tile in tiles) {
-            tile.dx = -tile.width / 2;
-            tile.dy = -tile.height / 2;
+    }
+    
+    override function init() {
+        super.init();
+        settings = new Settings();
+        settings.save();
+        random = new Random();
+        random.setStringSeed("hello");
+
+        colours = new Array();
+        var cLength = 16;
+        var cOffset = random.random() * 360;
+        for(i in 0...cLength) {
+            colours[i] = Hsluv.hsluvToHex([360.0 * i / cLength + cOffset, 100.0, (i / (cLength - 1)) * 50.0]) + "FF";
         }
 
-        anim = new h2d.Anim(tiles, s2d);
-        anim.speed = 1;
-
-        anim.x = s2d.width * 0.5;
-        anim.y = s2d.height * 0.5;
-
-        tf = new h2d.Text(hxd.res.DefaultFont.get(), s2d);
-        tf.text = "Hello World !";
-        tf.textAlign = Center;
-        tf.x = s2d.width * 0.5;
-
-        interaction = new h2d.Interactive(size, size, anim);
-        interaction.x = size / -2;
-        interaction.y = size / -2;
-
-        interaction.onOver = function(event: hxd.Event) {
-            anim.alpha = 0.7;
-        }
-        interaction.onOut = function(event: hxd.Event) {
-            anim.alpha = 1.0;
-        }
-
+        wangMap = new WangMap(settings.xTileCount, settings.yTileCount, colours);
+        generateMap(wangMap);
         rescale();
 
-        hxd.Window.getInstance().addResizeEvent(function() {
-            trace('resizing');
-            rescale();
-        });
+        hxd.Window.getInstance().addResizeEvent(rescale);
     }
 
     override function update(dt:Float) {
-        anim.rotation += 0.1 * dt;
+        if(Key.isPressed(Key.ESCAPE)) {
+            hxd.System.exit();
+        } else if(Key.isDown(Key.SPACE)) {
+            generateMap(wangMap);
+            this.rescale();
+        }
     }
 
     static function main() {
-        hxd.Res.initEmbed();
         new Main();
     }
 }

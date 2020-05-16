@@ -1,5 +1,7 @@
 -cp src
 -main Main
 -lib heaps
+-lib seedyrng
+-lib hsluv
 -debug
 -js build/js/game.js

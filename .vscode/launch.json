@@ -15,19 +15,13 @@
         },
         {
 			"name": "Javascript",
-			"request": "launch",
+            "request": "launch",
+            "runtimeExecutable": "/usr/bin/google-chrome-stable",
+            "runtimeArgs": ["--user-data-dir=/tmp"],
             "type": "chrome",
             "url": "file://${workspaceFolder}/build/js/index.html",
             "webRoot": "${workspaceFolder}/build/js/",
             "preLaunchTask": "haxe: javascript-post"
-        },
-        {
-			"name": "Create Wang Tileset",
-			"request": "launch",
-			"type": "hl",
-			"hxml": "wang.hxml",
-			"cwd": "${workspaceRoot}",
-			"preLaunchTask": "haxe: wang.hxml"
         },
     ]
 }
