@@ -1,33 +1,75 @@
-import seedyrng.Random;
-import StringTools.hex;
 import hsluv.Hsluv;
 import hxd.Key;
 import hxd.Math.floor;
+import seedyrng.Random;
+import h2d.Bitmap;
 
 import WangMap.WangMap;
-import Settings.Settings;
 
 typedef TiledMapData = { layers:Array<{ data:Array<Int>}>, tilewidth:Int, tileheight:Int, width:Int, height:Int };
 
 class Main extends hxd.App {
-    var settings:Settings.Settings;
-    var random:Random;
+    var random:Random = new Random();
     var colours:Array<String>;
     var wangMap:WangMap;
-    var bitmap:Null<h2d.Bitmap> = null;
+
     var scaling:Float = 0.8;
     var _last_update = 0;
 
+    var layers:h2d.Layers;
+    var tileBmp:Bitmap;
+    var bgBmp:Bitmap;
+
+    override function init() {
+        super.init();
+        Global.init();
+
+        tileBmp = new h2d.Bitmap();
+        bgBmp = new h2d.Bitmap();
+
+        layers = new h2d.Layers(s2d);
+        layers.add(bgBmp, 0);
+        layers.add(tileBmp, 1);
+
+        var uiLayout = new ui.Layout(this, s2d);
+        uiLayout.minWidth = s2d.width;
+        uiLayout.minHeight = s2d.height;
+        uiLayout.horizontalAlign = h2d.Flow.FlowAlign.Right;
+        uiLayout.verticalAlign = h2d.Flow.FlowAlign.Top;
+        //layers.add(uiLayout, 2);
+        generateColours(16);
+        wangMap = new WangMap(Global.settings.xTileCount,
+            Global.settings.yTileCount,
+            colours);
+
+        //hxd.Save.delete("settings");
+        load();
+        //save();
+    }
+    
+    function initRandom() {
+        if(Global.settings.seed != null) {
+            random.setStringSeed(Global.settings.seed);
+        } else {
+            random.setStringSeed("");
+        }
+    }
+
+    override function onResize() {
+		rescale();
+	}
+
     function rescale() {
         var stage = hxd.Window.getInstance();
-        var size = getSize(stage.width, stage.height);
-        var tileMap = wangMap.makeTileMap(size, size);
-        if(bitmap != null) {
-            bitmap.remove();
-        }
-        bitmap = new h2d.Bitmap(tileMap, s2d);
-        bitmap.x = (stage.width - size) / 2;
-        bitmap.y = (stage.height - size) / 2;
+        var width = stage.width;
+        var height = stage.height;
+        var size = getSize(width, height);
+
+        tileBmp.tile = wangMap.makeTileMap(size, size);
+        tileBmp.x = (stage.width - size) / 2;
+        tileBmp.y = (stage.height - size) / 2;
+
+        bgBmp.tile = h2d.Tile.fromColor(0xFFFFFF, width, height);
     }
 
     function getSize(width:Int, height:Int) {
@@ -77,27 +119,32 @@ class Main extends hxd.App {
         }
     }
     
-    override function init() {
-        super.init();
-        settings = new Settings();
-        settings.save();
-        random = new Random();
-        random.setStringSeed("hello");
+    function save() {
+        Global.save();
+    }
 
-        var bg = new h2d.Bitmap(h2d.Tile.fromColor(0xFFFFFF, s2d.width, s2d.height), s2d);
+    function load() {
+        Global.load();
+        updateMap();
+    }
 
-        colours = new Array();
-        var cLength = 16;
-        var cOffset = random.random() * 360;
-        for(i in 0...cLength) {
-            colours[i] = Hsluv.hsluvToHex([-360.0 * i / cLength + cOffset, 100.0, 100 - (i / (cLength - 1)) * 80.0]) + "FF";
-        }
-
-        wangMap = new WangMap(settings.xTileCount, settings.yTileCount, colours);
+    public function updateMap() {
+        initRandom();
+        generateColours(16);
+        wangMap.width = Global.settings.xTileCount;
+        wangMap.height = Global.settings.yTileCount;
+        wangMap.typeMap = colours;
         generateMap(wangMap);
         rescale();
+    }
 
-        hxd.Window.getInstance().addResizeEvent(rescale);
+
+    function generateColours(cLength:Int) {
+        this.colours = new Array();
+        var cOffset = random.random() * 360;
+        for(i in 0...cLength) {
+            this.colours[i] = Hsluv.hsluvToHex([-360.0 * i / cLength + cOffset, 100.0, 100 - (i / (cLength - 1)) * 80.0]) + "FF";
+        }
     }
 
     override function update(dt:Float) {
@@ -111,6 +158,7 @@ class Main extends hxd.App {
     }
 
     static function main() {
+        hxd.Res.initEmbed();
         new Main();
     }
 }

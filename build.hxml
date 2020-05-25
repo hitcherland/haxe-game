@@ -1,0 +1,12 @@
+-lib heaps
+-lib seedyrng
+-lib hsluv
+-lib castle
+-lib domkit
+-main Main
+--each
+#-lib hlsdl
+#-hl build/hl/game.hl
+#--next
+-debug
+-js build/js/game.js

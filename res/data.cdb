@@ -1,0 +1,69 @@
+{
+	"sheets": [
+		{
+			"name": "settings_view",
+			"columns": [
+				{
+					"typeStr": "1",
+					"name": "seed",
+					"kind": "localizable"
+				}
+			],
+			"lines": [
+				{
+					"seed": "seed"
+				}
+			],
+			"separators": [],
+			"props": {
+				"displayColumn": "seed"
+			}
+		},
+		{
+			"name": "settings",
+			"columns": [
+				{
+					"typeStr": "3",
+					"name": "xTileCount"
+				},
+				{
+					"typeStr": "3",
+					"name": "yTileCount"
+				},
+				{
+					"typeStr": "1",
+					"name": "seed",
+					"kind": "localizable"
+				}
+			],
+			"lines": [
+				{
+					"xTileCount": 150,
+					"yTileCount": 150,
+					"seed": "default"
+				}
+			],
+			"separators": [],
+			"props": {}
+		},
+		{
+			"name": "global_settings",
+			"columns": [
+				{
+					"typeStr": "5:en_gb,es_mx",
+					"name": "locale",
+					"display": null
+				}
+			],
+			"lines": [
+				{
+					"locale": 0
+				}
+			],
+			"separators": [],
+			"props": {}
+		}
+	],
+	"customTypes": [],
+	"compress": false
+}

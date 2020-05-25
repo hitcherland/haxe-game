@@ -6,23 +6,43 @@ class WangMap {
     public var data:Array<Int>;
     public var typeBytes:Array<Bytes>;
     var format:PixelFormat = PixelFormat.RGBA;
-    public var width:Int;
-    public var height:Int;
+    public var width(default, set):Int = 1;
+    public var height(default, set):Int = 1;
     var borderBytes:Null<Bytes>;
+
+    public var typeMap(default, set):Array<String>;
+
+    function set_typeMap(a:Array<String>):Array<String> {
+        this.typeBytes = a.map(function (str:String) {
+            return Bytes.ofHex(str.substring(1));
+        });
+        typeMap = a;
+        return a;
+    }
+
+    function set_width(a:Int):Int {
+        this.width = a;
+        this.data = new Array();
+        for(h in 0...(4 * height * width)) {
+            this.data.push(0);
+        }
+        return a;
+    }
+
+    function set_height(a:Int):Int {
+        this.height = a;
+        this.data = new Array();
+        for(h in 0...(4 * height * width)) {
+            this.data.push(0);
+        }
+        return a;
+    }
 
     public function new(width:Int, height:Int, typeMap:Array<String>, ?format=PixelFormat.RGBA, ?border:Null<String>) {
         this.width = width;
         this.height = height;
         this.format = format;
-
-        this.data = new Array();
-        for(h in 0...(4 * height * width)) {
-            this.data.push(0);
-        }
-
-        this.typeBytes = typeMap.map(function (str:String) {
-            return Bytes.ofHex(str.substring(1));
-        });
+        this.typeMap = typeMap;
 
         if(border == null) {
             this.borderBytes = null;

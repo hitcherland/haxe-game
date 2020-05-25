@@ -1,0 +1,36 @@
+button {
+    background: #000;
+}
+
+button:hover {
+    background: #222;
+}
+
+button:active {
+    background: #22f;
+}
+
+button text {
+    color: #fff;
+}
+
+setting {
+    background: #333;
+}
+
+setting.hover {
+    background: #f33;
+}
+
+setting #labelDom {
+    color: #fff;
+}
+
+setting #inputDom {
+    color: #f00;
+    background: #000;
+}
+
+setting {
+    background: #222222;
+}

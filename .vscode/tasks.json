@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "hxml",
-			"file": "hl.hxml",
+			"file": "build.hxml",
 			"problemMatcher": [
 				"$haxe-absolute",
 				"$haxe",
@@ -11,19 +11,7 @@
 				"$haxe-trace"
 			],
 			"group": "build",
-			"label": "haxe: hl.hxml"
-		},
-		{
-			"type": "hxml",
-			"file": "js.hxml",
-			"problemMatcher": [
-				"$haxe-absolute",
-				"$haxe",
-				"$haxe-error",
-				"$haxe-trace"
-			],
-			"group": "build",
-			"label": "haxe: js.hxml"
+			"label": "haxe: build"
 		},
 		{
 			"type": "shell",
@@ -31,7 +19,7 @@
 			"windows": {
 				"command": "js\\build_scripts\\prepare_js_dist.cmd"
 			},
-			"dependsOn": ["haxe: js.hxml"],
+			"dependsOn": ["haxe: build"],
 			"group": "build",
 			"label": "haxe: javascript-post"
 		},
@@ -41,7 +29,7 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"dependsOn": ["haxe: javascript-post", "haxe: hl.hxml"]
+			"dependsOn": ["haxe: javascript-post", "haxe: build"]
 		}
 	]
 }

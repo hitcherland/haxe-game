@@ -1,6 +1,0 @@
--lib heaps
--lib hlsdl
--lib seedyrng
--lib hsluv
--hl build/hl/game.hl
--main Main
